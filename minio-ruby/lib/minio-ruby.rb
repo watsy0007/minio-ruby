@@ -31,8 +31,7 @@ module MinioRuby
       req = Net::HTTP::Get.new(self.endPoint + '/' + bucketname + '/' + objectname, initheader = headers)
       req.body = body
       https.set_debug_output($stdout)
-      response = https.request(req)
-
+      https.request(req)
     end
 
 
@@ -45,7 +44,7 @@ module MinioRuby
       puts data
       uri = URI.parse(self.endPoint)
       https = Net::HTTP.new(uri.host, uri.port)
-      https.use_ssl = true
+      https.use_ssl = self.secure
 
       req = Net::HTTP::Put.new(self.endPoint + '/'+bucketname+'/'+objectname, initheader = headers)
       req.body = data
@@ -88,7 +87,7 @@ module MinioRuby
       uri = URI.parse(self.endPoint + '/' + bucketname)
 
       https = Net::HTTP.new(uri.host, uri.port)
-      https.use_ssl = true
+      https.use_ssl = self.secure
 
       req = Net::HTTP::Put.new(uri, initheader = headers)
       req.body = body
