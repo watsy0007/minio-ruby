@@ -9,7 +9,8 @@ require 'digest'
 
 module MinioRuby
   class MinioClient
-    attr_accessor :end_point, :port, :access_key, :secret_key, :secure, :transport, :region, :debug
+    attr_accessor :end_point, :port, :access_key, :secret_key,
+                  :secure, :transport, :region, :debug
 
     def initialize(params = {})
       # TODO: add extensive error checking of params here.
@@ -25,10 +26,10 @@ module MinioRuby
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = secure
 
-      req = Net::HTTP::Get.new(url, initheader = headers)
+      req = Net::HTTP::Get.new(url, headers)
       req.body = ''
       https.set_debug_output($stdout)
-      https.request(url)
+      https.request(req)
     end
 
 
@@ -41,7 +42,7 @@ module MinioRuby
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = secure
 
-      req = Net::HTTP::Put.new(url, initheader = headers)
+      req = Net::HTTP::Put.new(url, headers)
       req.body = data
       https.set_debug_output($stdout)
       https.request(req)
@@ -61,10 +62,10 @@ module MinioRuby
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = secure
 
-      req = Net::HTTP::Put.new(uri, initheader = headers)
+      req = Net::HTTP::Put.new(uri, headers)
       req.body = ''
       https.set_debug_output($stdout)
-      response = https.request(url)
+      response = https.request(req)
 
       if response.code != '200'
         puts 'Error Making bucket'
