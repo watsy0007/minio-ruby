@@ -9,96 +9,75 @@ require 'digest'
 
 module MinioRuby
   class MinioClient
-    attr_accessor :endPoint, :port, :accessKey, :secretKey, :secure, :transport, :region
+    attr_accessor :end_point, :port, :access_key, :secret_key, :secure, :transport, :region, :debug
 
-    def initialize params = {}
-      # TODO: add extensive error checking of params here. 
+    def initialize(params = {})
+      # TODO: add extensive error checking of params here.
+      params[:debug] = params[:debug] ? params[:debug] : false
       params.each { |key, value| send "#{key}=", value }
     end
 
-    def getObject(bucketname, objectname)
+    def get_object(bucket_name, object_name)
+      url = "#{end_point}/#{bucket_name}#{object_name}"
+      headers = sign_headers url
 
-      req = endPoint + '/' + bucketname + '/' + objectname
-      signer = MinioRuby::Signer.new(access_key: self.accessKey, secret_key: self.secretKey, region: self.region)
-      body = ""
-      headers = {}
-      headers = signer.sign_v4("GET", req, headers, body, true)
-
-      uri = URI.parse(self.endPoint)
+      uri = URI.parse(end_point)
       https = Net::HTTP.new(uri.host, uri.port)
-      https.use_ssl = self.secure
+      https.use_ssl = secure
 
-      req = Net::HTTP::Get.new(self.endPoint + '/' + bucketname + '/' + objectname, initheader = headers)
-      req.body = body
+      req = Net::HTTP::Get.new(url, initheader = headers)
+      req.body = ''
+      https.set_debug_output($stdout)
+      https.request(url)
+    end
+
+
+    def put_object(bucket_name, object_name, data)
+      url = "#{end_point}/#{bucket_name}#{object_name}"
+      headers = sign_headers url, data
+
+      puts data
+      uri = URI.parse(end_point)
+      https = Net::HTTP.new(uri.host, uri.port)
+      https.use_ssl = secure
+
+      req = Net::HTTP::Put.new(url, initheader = headers)
+      req.body = data
       https.set_debug_output($stdout)
       https.request(req)
     end
 
 
-    def putObject(bucketname, objectname, data, length, content_type='application/octet-stream')
-      req = endPoint + '/' + bucketname + '/' + objectname
-      signer = MinioRuby::Signer.new(access_key: self.accessKey, secret_key: self.secretKey, region: self.region)
-      headers = {}
-      headers = signer.sign_v4("PUT", req, headers, data, true)
-
-      puts data
-      uri = URI.parse(self.endPoint)
-      https = Net::HTTP.new(uri.host, uri.port)
-      https.use_ssl = self.secure
-
-      req = Net::HTTP::Put.new(self.endPoint + '/'+bucketname+'/'+objectname, initheader = headers)
-      req.body = data
-      https.set_debug_output($stdout)
-      response = https.request(req)
-
-    end
+    def bucket_exists(bucket_name); end
 
 
-    def bucketExists(bucketname)
+    def fput_object(bucket_name, object_name, file_path, content_type); end
 
-
-    end
-
-
-    def fputObject(bucketname, objectname, filepath, content_type)
-
-
-    end
-
-    def makeBucket(bucketname, location='us-east-1')
-
-      method = "PUT"
-      headers = { 'User-Agent' => 'MinioRuby' }
-      content = ""
-      signer = MinioRuby::Signer.new(access_key: self.accessKey, secret_key: self.secretKey, region: self.region)
-      body = ""
-
-      #headers['Content-Length'] = content.length.to_s
-      req = self.endPoint + '/' + bucketname
-
-
-      content_sha256_hex = Digest::SHA256.hexdigest(content)
-      #headers['Content-Md5'] = Digest::MD5.base64digest(content)
-
-      headers = signer.sign_v4(method, req, headers, body, true)
-
-      puts req
-
-      uri = URI.parse(self.endPoint + '/' + bucketname)
+    def make_bucket(bucket_name)
+      url = "#{end_point}/#{bucket_name}"
+      headers = sign_headers url
+      uri = URI.parse(url)
 
       https = Net::HTTP.new(uri.host, uri.port)
-      https.use_ssl = self.secure
+      https.use_ssl = secure
 
       req = Net::HTTP::Put.new(uri, initheader = headers)
-      req.body = body
+      req.body = ''
       https.set_debug_output($stdout)
-      response = https.request(req)
+      response = https.request(url)
 
-      if response.code != "200"
-        puts "Error Making bucket"
+      if response.code != '200'
+        puts 'Error Making bucket'
       else
-        puts "Made bucket"
+        puts 'Made bucket'
       end
+    end
+
+    private
+
+    def sign_headers(url, data = '')
+      signer = MinioRuby::Signer.new(access_key: access_key, secret_key: secret_key, region: region)
+      signer.sign_v4('PUT', url, { 'User-Agent' => 'MinioRuby' }, data,true)
     end
   end
 end

@@ -11,7 +11,7 @@ The Minio Ruby SDK is work in progress. Please do not use it in development or p
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'minio'
+gem 'minio-ruby'
 ```
 
 And then execute to install the deps.
@@ -23,7 +23,7 @@ bundle
 Or install it yourself as:
 
 ```
-gem install minio
+gem install minio-ruby
 ```
 
 ## Development
@@ -37,7 +37,7 @@ bundle exec rake gems:build
 Install the built gem file.
 
 ```sh
-gem install minio-0.0.1.gem
+gem install minio-ruby-0.0.1.gem
 ```
 
 ## Contributing
