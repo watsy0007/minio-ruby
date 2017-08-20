@@ -28,7 +28,7 @@ module MinioRuby
 
       req = Net::HTTP::Get.new(url, headers)
       req.body = ''
-      https.set_debug_output($stdout)
+      https.set_debug_output($stdout) if debug
       https.request(req)
     end
 
@@ -36,15 +36,13 @@ module MinioRuby
     def put_object(bucket_name, object_name, data)
       url = "#{end_point}/#{bucket_name}#{object_name}"
       headers = sign_headers url, data
-
-      puts data
       uri = URI.parse(end_point)
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = secure
 
       req = Net::HTTP::Put.new(url, headers)
       req.body = data
-      https.set_debug_output($stdout)
+      https.set_debug_output($stdout) if debug
       https.request(req)
     end
 
@@ -64,7 +62,7 @@ module MinioRuby
 
       req = Net::HTTP::Put.new(uri, headers)
       req.body = ''
-      https.set_debug_output($stdout)
+      https.set_debug_output($stdout) if debug
       response = https.request(req)
 
       if response.code != '200'
@@ -77,8 +75,16 @@ module MinioRuby
     private
 
     def sign_headers(url, data = '')
-      signer = MinioRuby::Signer.new(access_key: access_key, secret_key: secret_key, region: region)
-      signer.sign_v4('PUT', url, { 'User-Agent' => 'MinioRuby' }, data,true)
+      signer = MinioRuby::Signer.new(
+        access_key: access_key,
+        secret_key: secret_key,
+        region: region
+      )
+      signer.sign_v4('PUT',
+                     url,
+                     { 'User-Agent' => 'MinioRuby' },
+                     data,
+                     true)
     end
   end
 end
