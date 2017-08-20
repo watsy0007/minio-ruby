@@ -20,7 +20,7 @@ module MinioRuby
 
     def get_object(bucket_name, object_name)
       url = "#{end_point}/#{bucket_name}/#{object_name}"
-      headers = sign_headers url
+      headers = sign_headers 'get', url
 
       uri = URI.parse(end_point)
       https = Net::HTTP.new(uri.host, uri.port)
@@ -35,7 +35,7 @@ module MinioRuby
 
     def put_object(bucket_name, object_name, data)
       url = "#{end_point}/#{bucket_name}/#{object_name}"
-      headers = sign_headers url, data
+      headers = sign_headers 'put', url, data
       uri = URI.parse(end_point)
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = secure
@@ -54,7 +54,7 @@ module MinioRuby
 
     def make_bucket(bucket_name)
       url = "#{end_point}/#{bucket_name}"
-      headers = sign_headers url
+      headers = sign_headers 'put', url
       uri = URI.parse(url)
 
       https = Net::HTTP.new(uri.host, uri.port)
@@ -74,13 +74,13 @@ module MinioRuby
 
     private
 
-    def sign_headers(url, data = '')
+    def sign_headers(method, url, data = '')
       signer = MinioRuby::Signer.new(
         access_key: access_key,
         secret_key: secret_key,
         region: region
       )
-      signer.sign_v4('PUT',
+      signer.sign_v4(method,
                      url,
                      {},
                      data,
