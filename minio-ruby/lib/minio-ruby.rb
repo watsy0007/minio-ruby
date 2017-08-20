@@ -19,7 +19,7 @@ module MinioRuby
     end
 
     def get_object(bucket_name, object_name)
-      url = "#{end_point}/#{bucket_name}#{object_name}"
+      url = "#{end_point}/#{bucket_name}/#{object_name}"
       headers = sign_headers url
 
       uri = URI.parse(end_point)
@@ -34,7 +34,7 @@ module MinioRuby
 
 
     def put_object(bucket_name, object_name, data)
-      url = "#{end_point}/#{bucket_name}#{object_name}"
+      url = "#{end_point}/#{bucket_name}/#{object_name}"
       headers = sign_headers url, data
       uri = URI.parse(end_point)
       https = Net::HTTP.new(uri.host, uri.port)
@@ -82,9 +82,9 @@ module MinioRuby
       )
       signer.sign_v4('PUT',
                      url,
-                     { 'User-Agent' => 'MinioRuby' },
+                     {},
                      data,
-                     true)
+                     debug)
     end
   end
 end
