@@ -24,7 +24,7 @@ module MinioRuby
 
       uri = URI.parse(end_point)
       https = Net::HTTP.new(uri.host, uri.port)
-      https.use_ssl = secure
+      https.use_ssl = (uri.scheme == 'https')
 
       req = Net::HTTP::Get.new(url, headers)
       req.body = ''
@@ -38,7 +38,7 @@ module MinioRuby
       headers = sign_headers 'put', url, data
       uri = URI.parse(end_point)
       https = Net::HTTP.new(uri.host, uri.port)
-      https.use_ssl = secure
+      https.use_ssl = (uri.scheme == 'https')
 
       req = Net::HTTP::Put.new(url, headers)
       req.body = data
@@ -58,7 +58,7 @@ module MinioRuby
       uri = URI.parse(url)
 
       https = Net::HTTP.new(uri.host, uri.port)
-      https.use_ssl = secure
+      https.use_ssl = (uri.scheme == 'https')
 
       req = Net::HTTP::Put.new(uri, headers)
       req.body = ''
